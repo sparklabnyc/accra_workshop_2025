@@ -1,0 +1,172 @@
+---
+title: "Introduction to methods in environmental epidemiology"
+subtitle: "Day 1 lab 2: Introduction to quantile regression"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+
+::: {.cell}
+## 0: Preparation
+
+Load necessary packages
+
+```{r}
+library(readr)
+library(dplyr)
+library(quantreg)
+library(ggplot2)
+library(here)
+```
+:::
+
+::: {.cell}
+## 0: Declare Folder Paths
+```{r}
+ProjectFolder <- here("data")
+```
+:::
+
+### 1: Load Data
+
+::: {.cell}
+```{r}
+dta <- read_csv(here(ProjectFolder, "2010_County_Data.csv")) %>%
+  filter(complete.cases(.))
+```
+:::
+
+### 2: Define Research Question
+
+Does the distribution of county-average BMI vary by annual PM2.5?
+
+### 3: Calculate and Compare Quantiles
+
+::: {.cell}
+```{r}
+# Identify regions with most observations
+table(dta$ClimateRegion)
+
+# Filter for Ohio Valley and Southeast
+dta.OhioValley_Southeast <- dta %>% 
+  filter(ClimateRegion %in% c("ohio_valley", "southeast"))
+
+# Create separate dataframes for comparison
+dta.OhioValley <- filter(dta, ClimateRegion == "ohio_valley")
+dta.Southeast <- filter(dta, ClimateRegion == "southeast")
+
+# Calculate quantiles
+quantile(dta.OhioValley$AveBMI, c(0.25, 0.5, 0.75))
+
+# Mean vs. outlier sensitivity
+OhioValley.Mean <- mean(dta.OhioValley$AveBMI)
+dta.OhioValley.noExtreme <- filter(dta.OhioValley, AveBMI < 40)
+OhioValley.Mean.noExtreme <- mean(dta.OhioValley.noExtreme$AveBMI)
+OhioValley.Mean - OhioValley.Mean.noExtreme
+
+OhioValley.Median <- quantile(dta.OhioValley$AveBMI, 0.5)[[1]]
+OhioValley.Median.noExtreme <- quantile(dta.OhioValley.noExtreme$AveBMI, 0.5)[[1]]
+OhioValley.Median - OhioValley.Median.noExtreme
+
+# Remove erroneous data
+dta <- dta[-c(169),]
+rm(list = ls(pattern = "Ohio"))
+rm(list = ls(pattern = "dta."))
+```
+:::
+
+
+## Live Session Material
+
+### 4: Review Research Question
+
+> Reiteration of question.
+
+### 5: Fit Median Model
+
+::: {.cell}
+```{r}
+Mod50th <- rq(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
+            MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+            data = dta, tau = 0.5)
+summary(Mod50th, alpha = 0.05)
+Coeff.Mod50th <- summary(Mod50th, alpha = 0.05)$coefficients
+
+# Fit mean model
+ModMean <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
+              MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+              data = dta)
+
+# Combine results
+coeff.table <- data.frame(Fit.Mod50th = summary(Mod50th)$coefficients[,1],
+                           Fit.ModMean = summary(ModMean)$coefficients[,1]) %>%
+  mutate(PercentDiff = 100*(Fit.Mod50th - Fit.ModMean)/Fit.ModMean) %>% 
+  mutate(across(everything(), round, 3))
+
+# Forest plot
+df <- data.frame(Model = c("Mean", "Median"),
+                 coeff = c(summary(ModMean)$coefficients[2,1], Coeff.Mod50th[2,1]),
+                 lci = c(summary(ModMean)$coefficients[2,1] - 1.96*summary(ModMean)$coefficients[2,2], Coeff.Mod50th[2,2]),
+                 uci = c(summary(ModMean)$coefficients[2,1] + 1.96*summary(ModMean)$coefficients[2,2], Coeff.Mod50th[2,3]))
+
+ForestPlotMeanMedian <- ggplot(df, aes(x = Model, y = coeff, ymin = lci, ymax = uci)) + 
+  geom_pointrange() + geom_errorbar() + geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Coefficient for PM"[2.5]~" (95% CI)"))
+ForestPlotMeanMedian
+```
+:::
+
+### 6: Compare Association at Different Quantiles
+
+::: {.cell}
+```{r}
+Mods25.50 <- rq(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
+                  MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+                data = dta, tau = c(0.25, 0.5))
+summary25.50 <- summary(Mods25.50)
+
+Model25th <- summary25.50[[1]]$coefficients[2,1:3]
+Model50th <- summary25.50[[2]]$coefficients[2,1:3]
+
+# Create table and plot
+coeff.table <- data.frame(
+  ModelName = c("25th", "50th"),
+  coeff = c(Model25th[1], Model50th[1]),
+  lci = c(Model25th[2], Model50th[2]),
+  uci = c(Model25th[3], Model50th[3])
+)
+
+ForestPlot.25.50 <- ggplot(coeff.table, aes(x = ModelName, y = coeff, ymin = lci, ymax = uci)) +
+  geom_pointrange() + geom_errorbar() + geom_hline(yintercept = 0, lty = 2) +
+  xlab("Model Name") + ylab(expression("Coefficient for PM"[2.5]~" (95% CI)"))
+ForestPlot.25.50
+```
+:::
+
+### 6c: Multiple Quantiles
+
+::: {.cell}
+```{r}
+TauList <- seq(0.1, 0.9, by = 0.1)
+qr.Mods <- rq(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
+                 MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+               data = dta, tau = TauList)
+summary.qr.Mods <- summary(qr.Mods)
+
+coeffs <- sapply(1:9, function(i) summary.qr.Mods[[i]]$coefficients[2,1:3])
+coeff.table <- data.frame(t(coeffs))
+names(coeff.table) <- c("coeff", "lci", "uci")
+coeff.table$ModelName <- paste0(10 * 1:9, "th")
+
+ForestPlot.Mods <- ggplot(coeff.table, aes(x = ModelName, y = coeff, ymin = lci, ymax = uci)) + 
+  geom_pointrange() + geom_errorbar() + geom_hline(yintercept = 0, lty = 2) +
+  xlab("BMI Quantile") + ylab(expression("Coefficient for PM"[2.5]~" (95% CI)"))
+ForestPlot.Mods
+```
+:::
+
+---
+
+This Quarto document covers the basics of quantile regression with a real world example.

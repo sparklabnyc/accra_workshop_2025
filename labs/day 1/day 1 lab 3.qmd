@@ -1,0 +1,119 @@
+---
+title: "Introduction to methods in environmental epidemiology"
+subtitle: "Day 1 lab 3: Likelihood-based models in environmental epidemiology"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+
+::: {.cell}
+## 0: Preparation
+
+Load necessary packages
+
+```{r}
+library(here)
+library(dplyr)
+library(ggplot2)
+library(MASS)
+library(survival)
+library(Epi)
+library(ResourceSelection)
+library(datasets)  # for airquality
+```
+:::
+
+::: {.cell}
+## 0: Declare Folder Paths
+```{r}
+ProjectFolder <- here("data")
+```
+:::
+
+## Introduction
+
+This lab demonstrates how to fit various likelihood-based regression models in the context of environmental epidemiology using real data (`airquality`) and simulated health outcomes.
+
+## Use Real-World Data: `airquality` with Simulated Mortality
+
+```{r real-health-data}
+data <- airquality %>%
+  filter(!is.na(Ozone), !is.na(Temp)) %>%
+  mutate(
+    mortality = rpois(n(), lambda = exp(0.01 * Temp + 0.005 * Ozone)),
+    high_mort = as.integer(mortality > quantile(mortality, 0.75)),
+    day_of_week = sample(c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"), n(), replace = TRUE),
+    total_deaths = mortality + rbinom(n(), size = 10, prob = 0.5),
+    deaths_over5 = rbinom(n(), size = total_deaths, prob = 0.6)
+  )
+```
+
+## 1. Linear Regression (Normal Likelihood)
+
+```{r real-normal-model}
+model_normal <- lm(mortality ~ Temp + Ozone, data = data)
+summary(model_normal)
+```
+
+### Plot
+
+```{r real-normal-plot}
+ggplot(data, aes(x = Temp, y = mortality)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Simulated Mortality vs Temperature")
+```
+
+## 2. Poisson Regression (Count Data)
+
+```{r real-poisson-model}
+model_poisson <- glm(mortality ~ Temp + Ozone + day_of_week, family = poisson(), data = data)
+summary(model_poisson)
+```
+
+### Plot
+
+```{r real-poisson-plot}
+data$pred_mortality <- predict(model_poisson, type = "response")
+ggplot(data, aes(x = pred_mortality, y = mortality)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  labs(title = "Predicted vs Observed Mortality (Poisson Model)")
+```
+
+## 3. Logistic Regression (Bernoulli Likelihood)
+
+```{r real-logistic-model}
+model_logistic <- glm(high_mort ~ Temp + Ozone, family = binomial(), data = data)
+summary(model_logistic)
+```
+
+### Plot
+
+```{r real-logistic-plot}
+ggplot(data, aes(x = fitted(model_logistic), fill = as.factor(high_mort))) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) +
+  labs(title = "Fitted Probabilities for High Mortality Days", fill = "High Mortality")
+```
+
+## 4. Binomial Regression (Grouped Binary Outcomes)
+
+```{r real-binomial-model}
+model_binomial <- glm(cbind(deaths_over5, total_deaths - deaths_over5) ~ Temp + Ozone, family = binomial(), data = data)
+summary(model_binomial)
+```
+
+### Plot
+
+```{r real-binomial-plot}
+data$pred_prob_over5 <- predict(model_binomial, type = "response")
+ggplot(data, aes(x = pred_prob_over5)) +
+  geom_histogram(bins = 30, fill = "skyblue", alpha = 0.7) +
+  labs(title = "Predicted Proportion of Deaths Over Age 5")
+```
+
+---
+
+This Quarto document covers the basics of various potential likelihood models with common data types and research questions. You can explore further with datasets like `airquality`, or public mortality databases from CDC Wonder or Eurostat.

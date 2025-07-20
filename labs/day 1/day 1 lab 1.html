@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.354">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Robbie M. Parks">
+<meta name="dcterms.date" content="2025-07-20">
+
+<title>Introduction to methods in environmental epidemiology</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="day 1 lab 1_files/libs/clipboard/clipboard.min.js"></script>
+<script src="day 1 lab 1_files/libs/quarto-html/quarto.js"></script>
+<script src="day 1 lab 1_files/libs/quarto-html/popper.min.js"></script>
+<script src="day 1 lab 1_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="day 1 lab 1_files/libs/quarto-html/anchor.min.js"></script>
+<link href="day 1 lab 1_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="day 1 lab 1_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="day 1 lab 1_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="day 1 lab 1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="day 1 lab 1_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Introduction to methods in environmental epidemiology</h1>
+<p class="subtitle lead">Day 1 lab 1: Introduction to linear regression in environmental epidemiology</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Robbie M. Parks </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 20, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="preparation" class="level2 cell">
+<h2 class="anchored" data-anchor-id="preparation">0: Preparation</h2>
+<p>Load necessary packages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/rmiparks/git/accra_workshop_2025</code></pre>
+</div>
+</div>
+</section>
+<section id="declare-folder-paths" class="level2 cell">
+<h2 class="anchored" data-anchor-id="declare-folder-paths">0: Declare Folder Paths</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ProjectFolder <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="examine-data" class="level2 cell">
+<h2 class="anchored" data-anchor-id="examine-data">1: Examine Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dta <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(ProjectFolder, <span class="st">"Lab1_2010_County_Data.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 500 Columns: 15
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (3): FIPS, State, ClimateRegion
+dbl (12): AveBMI, AvePM, NumTot, MedHVal, MedHInc, PerAsianAm, PerBlack, Per...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm dimensions</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dim</span>(dta))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 500  15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">names</span>(dta))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "FIPS"          "AveBMI"        "AvePM"         "NumTot"       
+ [5] "MedHVal"       "MedHInc"       "PerAsianAm"    "PerBlack"     
+ [9] "PerLatinx"     "PerWhite"      "FemaleUnemp"   "MaleUnemp"    
+[13] "LTHS"          "State"         "ClimateRegion"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 15
+  FIPS  AveBMI AvePM NumTot MedHVal MedHInc PerAsianAm PerBlack PerLatinx
+  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 12071   27.0  6.97 497885  210600   50014    0.0129   0.0645     0.153 
+2 39017   27.8 13.4  275526  160600   54788    0.0237   0.0656     0.0320
+3 17039   26.7 12.0   12739   96200   45347    0.00338  0.00502    0.0150
+4 01113   29.7 12.7   39448   93300   32481    0.00499  0.394      0.0303
+5 37027   27.3 10.1   64243  106900   37261    0.00455  0.0459     0.0345
+6 31153   27.4 10.7  113118  158600   68280    0.0222   0.0382     0.0595
+# ℹ 6 more variables: PerWhite &lt;dbl&gt;, FemaleUnemp &lt;dbl&gt;, MaleUnemp &lt;dbl&gt;,
+#   LTHS &lt;dbl&gt;, State &lt;chr&gt;, ClimateRegion &lt;chr&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View specific variables</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(dta<span class="sc">$</span>AvePM[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  6.966942 13.411244 12.031373 12.736682 10.106140 10.730493 10.209091
+ [8]  8.898291 11.450833  8.031113</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">mode</span>(dta<span class="sc">$</span>AvePM))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">length</span>(dta<span class="sc">$</span>AvePM))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 500</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary statistics</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     FIPS               AveBMI          AvePM            NumTot       
+ Length:500         Min.   :22.76   Min.   : 3.867   Min.   :   9656  
+ Class :character   1st Qu.:27.06   1st Qu.: 9.393   1st Qu.:  25205  
+ Mode  :character   Median :27.82   Median :10.407   Median :  62464  
+                    Mean   :27.91   Mean   :10.285   Mean   : 177352  
+                    3rd Qu.:28.66   3rd Qu.:11.537   3rd Qu.: 171372  
+                    Max.   :41.49   Max.   :16.078   Max.   :3962395  
+                                                                      
+    MedHVal          MedHInc         PerAsianAm           PerBlack        
+ Min.   : 53400   Min.   : 24724   Min.   :0.0007893   Min.   :0.0008824  
+ 1st Qu.:101750   1st Qu.: 39518   1st Qu.:0.0042097   1st Qu.:0.0141791  
+ Median :133200   Median : 45812   Median :0.0090633   Median :0.0627177  
+ Mean   :167424   Mean   : 49360   Mean   :0.0212700   Mean   :0.1191479  
+ 3rd Qu.:198275   3rd Qu.: 55294   3rd Qu.:0.0240611   3rd Qu.:0.1728076  
+ Max.   :825200   Max.   :115574   Max.   :0.3218201   Max.   :0.7701163  
+                                                                          
+   PerLatinx           PerWhite       FemaleUnemp       MaleUnemp     
+ Min.   :0.003473   Min.   :0.1010   Min.   : 1.900   Min.   : 0.900  
+ 1st Qu.:0.017035   1st Qu.:0.6764   1st Qu.: 5.000   1st Qu.: 5.500  
+ Median :0.036143   Median :0.8183   Median : 6.400   Median : 7.150  
+ Mean   :0.065809   Mean   :0.7746   Mean   : 6.728   Mean   : 7.534  
+ 3rd Qu.:0.067392   3rd Qu.:0.9209   3rd Qu.: 8.025   3rd Qu.: 9.225  
+ Max.   :0.881946   Max.   :0.9864   Max.   :17.100   Max.   :19.800  
+                                     NA's   :60       NA's   :60      
+      LTHS          State           ClimateRegion     
+ Min.   : 0.30   Length:500         Length:500        
+ 1st Qu.:13.88   Class :character   Class :character  
+ Median :18.65   Mode  :character   Mode  :character  
+ Mean   :19.00                                        
+ 3rd Qu.:23.80                                        
+ Max.   :50.00                                        
+                                                      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check specific statistics</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">min</span>(dta<span class="sc">$</span>AvePM))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.866667</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">max</span>(dta<span class="sc">$</span>AvePM))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16.07774</code></pre>
+</div>
+</div>
+</section>
+<section id="plotting-data" class="level2 cell">
+<h2 class="anchored" data-anchor-id="plotting-data">2: Plotting Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(dta<span class="sc">$</span>AveBMI, <span class="at">breaks =</span> <span class="dv">20</span>, <span class="at">xlab =</span> <span class="st">"Average BMI"</span>, <span class="at">ylab =</span> <span class="st">"Count of Counties"</span>, <span class="at">main =</span> <span class="st">"Histogram of Average BMI"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Density</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(dta<span class="sc">$</span>AveBMI, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplot</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(<span class="fu">split</span>(dta<span class="sc">$</span>AvePM, dta<span class="sc">$</span>ClimateRegion), <span class="at">xlab =</span> <span class="st">"NOAA Climate Region"</span>, <span class="at">ylab =</span> <span class="fu">expression</span>(<span class="st">"Annual PM"</span>[<span class="fl">2.5</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scatterplot</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> dta<span class="sc">$</span>AvePM, <span class="at">y =</span> dta<span class="sc">$</span>AveBMI, <span class="at">xlab =</span> <span class="fu">expression</span>(<span class="st">"Average PM"</span>[<span class="fl">2.5</span>]), <span class="at">ylab =</span> <span class="st">"Average BMI"</span>, <span class="at">main =</span> <span class="st">"Scatterplot: County-average PM vs. BMI"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM, <span class="at">data =</span> dta), <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-4-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="define-research-question" class="level2">
+<h2 class="anchored" data-anchor-id="define-research-question">3: Define Research Question</h2>
+<p>In 2010, was county-average BMI associated with county-average annual PM2.5?</p>
+</section>
+<section id="review-data-structure" class="level2 cell">
+<h2 class="anchored" data-anchor-id="review-data-structure">4: Review Data Structure</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dta<span class="sc">$</span>AveBMI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  22.76   27.06   27.82   27.91   28.66   41.49 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(dta<span class="sc">$</span>AveBMI, <span class="at">freq =</span> <span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">"Average BMI"</span>, <span class="at">ylab =</span> <span class="st">"Density"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(dta<span class="sc">$</span>AveBMI, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">col =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Largest BMI</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>LargestBMI <span class="ot">&lt;-</span> dta[dta<span class="sc">$</span>AveBMI <span class="sc">==</span> <span class="fu">max</span>(dta<span class="sc">$</span>AveBMI), ]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(LargestBMI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 15
+  FIPS  AveBMI AvePM NumTot MedHVal MedHInc PerAsianAm PerBlack PerLatinx
+  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 17033   41.5  12.3  15764   70400   41434    0.00495   0.0553    0.0180
+# ℹ 6 more variables: PerWhite &lt;dbl&gt;, FemaleUnemp &lt;dbl&gt;, MaleUnemp &lt;dbl&gt;,
+#   LTHS &lt;dbl&gt;, State &lt;chr&gt;, ClimateRegion &lt;chr&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="fit-regression-model" class="level2 cell">
+<h2 class="anchored" data-anchor-id="fit-regression-model">5: Fit Regression Model</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM <span class="sc">+</span> PerBlack <span class="sc">+</span> PerLatinx <span class="sc">+</span> PerAsianAm <span class="sc">+</span> MedHInc <span class="sc">+</span> MedHVal <span class="sc">+</span> LTHS <span class="sc">+</span> FemaleUnemp <span class="sc">+</span> MaleUnemp <span class="sc">+</span> ClimateRegion, <span class="at">data =</span> dta, <span class="at">na.action =</span> na.omit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="review-model-results" class="level2 cell">
+<h2 class="anchored" data-anchor-id="review-model-results">6: Review Model Results</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
+    MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+    data = dta, na.action = na.omit)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.9089 -0.6638 -0.1131  0.5264 12.2713 
+
+Coefficients:
+                             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                 2.595e+01  7.663e-01  33.864  &lt; 2e-16 ***
+AvePM                       1.303e-01  4.992e-02   2.611  0.00936 ** 
+PerBlack                    5.958e-01  6.289e-01   0.947  0.34402    
+PerLatinx                   3.144e-01  8.410e-01   0.374  0.70868    
+PerAsianAm                 -6.977e+00  3.394e+00  -2.056  0.04040 *  
+MedHInc                     2.474e-06  8.672e-06   0.285  0.77554    
+MedHVal                    -2.463e-06  1.525e-06  -1.616  0.10695    
+LTHS                        5.284e-03  1.067e-02   0.495  0.62059    
+FemaleUnemp                 4.474e-02  4.452e-02   1.005  0.31548    
+MaleUnemp                   9.859e-02  3.831e-02   2.573  0.01042 *  
+ClimateRegionnorthwest      9.177e-02  5.389e-01   0.170  0.86486    
+ClimateRegionohio_valley   -3.264e-01  2.838e-01  -1.150  0.25075    
+ClimateRegionrockies        2.668e-01  4.460e-01   0.598  0.55001    
+ClimateRegionsouth          7.657e-02  3.136e-01   0.244  0.80725    
+ClimateRegionsoutheast     -1.906e-01  2.391e-01  -0.797  0.42574    
+ClimateRegionsouthwest     -8.053e-01  8.130e-01  -0.991  0.32250    
+ClimateRegionupper_midwest -6.377e-02  2.962e-01  -0.215  0.82963    
+ClimateRegionwest          -7.400e-02  1.373e+00  -0.054  0.95705    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.338 on 422 degrees of freedom
+  (60 observations deleted due to missingness)
+Multiple R-squared:  0.2176,    Adjusted R-squared:  0.1861 
+F-statistic: 6.906 on 17 and 422 DF,  p-value: 8.9e-15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract specific components</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>coeffs <span class="ot">&lt;-</span> <span class="fu">summary</span>(mod)<span class="sc">$</span>coefficients</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>coeffs[<span class="dv">2</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Estimate  Std. Error     t value    Pr(&gt;|t|) 
+0.130330467 0.049923331 2.610612373 0.009359786 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confidence intervals</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> coeffs[<span class="dv">2</span>,<span class="dv">1</span>]</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>se <span class="ot">&lt;-</span> coeffs[<span class="dv">2</span>,<span class="dv">2</span>]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>lci <span class="ot">&lt;-</span> beta <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>uci <span class="ot">&lt;-</span> beta <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>AvePM.range <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(dta<span class="sc">$</span>AvePM), <span class="fu">max</span>(dta<span class="sc">$</span>AvePM), <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>ChangeBMI <span class="ot">&lt;-</span> AvePM.range <span class="sc">*</span> beta</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(AvePM.range, ChangeBMI, <span class="at">xlab =</span> <span class="fu">expression</span>(<span class="st">"Average PM"</span>[<span class="fl">2.5</span>]), <span class="at">ylab =</span> <span class="st">"Associated Change in Average BMI"</span>, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> lci, <span class="at">col =</span> <span class="st">"gray"</span>)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> uci, <span class="at">col =</span> <span class="st">"gray"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="assess-model-assumptions" class="level2 cell">
+<h2 class="anchored" data-anchor-id="assess-model-assumptions">7: Assess Model Assumptions</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: not plotting observations with leverage one:
+  154</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="day-1-lab-1_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="examine-effect-modification" class="level2 cell">
+<h2 class="anchored" data-anchor-id="examine-effect-modification">8: Examine Effect Modification</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>mod.interaction <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM<span class="sc">*</span>ClimateRegion <span class="sc">+</span> PerBlack <span class="sc">+</span> PerLatinx <span class="sc">+</span> PerAsianAm <span class="sc">+</span> MedHInc <span class="sc">+</span> MedHVal <span class="sc">+</span> LTHS <span class="sc">+</span> FemaleUnemp <span class="sc">+</span> MaleUnemp, <span class="at">data =</span> dta, <span class="at">na.action =</span> na.omit)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = AveBMI ~ AvePM * ClimateRegion + PerBlack + PerLatinx + 
+    PerAsianAm + MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp, 
+    data = dta, na.action = na.omit)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.8621 -0.6334 -0.0957  0.5434 12.3312 
+
+Coefficients: (1 not defined because of singularities)
+                                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       2.439e+01  1.303e+00  18.724   &lt;2e-16 ***
+AvePM                             3.001e-01  1.203e-01   2.494   0.0130 *  
+ClimateRegionnorthwest           -1.373e-01  3.855e+00  -0.036   0.9716    
+ClimateRegionohio_valley          2.148e+00  1.725e+00   1.245   0.2138    
+ClimateRegionrockies              2.408e-01  2.718e+00   0.089   0.9294    
+ClimateRegionsouth                2.800e+00  1.888e+00   1.483   0.1388    
+ClimateRegionsoutheast            1.337e+00  1.457e+00   0.918   0.3591    
+ClimateRegionsouthwest            3.339e-01  2.812e+00   0.119   0.9055    
+ClimateRegionupper_midwest        2.539e+00  1.750e+00   1.450   0.1477    
+ClimateRegionwest                 4.242e-01  1.408e+00   0.301   0.7634    
+PerBlack                          6.440e-01  6.358e-01   1.013   0.3118    
+PerLatinx                         1.341e-01  8.686e-01   0.154   0.8774    
+PerAsianAm                       -7.157e+00  3.443e+00  -2.079   0.0383 *  
+MedHInc                           1.447e-06  9.000e-06   0.161   0.8723    
+MedHVal                          -2.222e-06  1.572e-06  -1.414   0.1582    
+LTHS                              4.066e-03  1.079e-02   0.377   0.7064    
+FemaleUnemp                       4.982e-02  4.491e-02   1.109   0.2679    
+MaleUnemp                         9.028e-02  3.933e-02   2.295   0.0222 *  
+AvePM:ClimateRegionnorthwest      1.368e-01  6.145e-01   0.223   0.8239    
+AvePM:ClimateRegionohio_valley   -2.402e-01  1.600e-01  -1.501   0.1340    
+AvePM:ClimateRegionrockies        1.335e-02  2.959e-01   0.045   0.9640    
+AvePM:ClimateRegionsouth         -2.774e-01  1.876e-01  -1.479   0.1400    
+AvePM:ClimateRegionsoutheast     -1.607e-01  1.470e-01  -1.093   0.2750    
+AvePM:ClimateRegionsouthwest     -1.028e-01  3.488e-01  -0.295   0.7683    
+AvePM:ClimateRegionupper_midwest -2.727e-01  1.813e-01  -1.504   0.1334    
+AvePM:ClimateRegionwest                  NA         NA      NA       NA    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.342 on 415 degrees of freedom
+  (60 observations deleted due to missingness)
+Multiple R-squared:  0.2257,    Adjusted R-squared:  0.181 
+F-statistic: 5.041 on 24 and 415 DF,  p-value: 8.727e-13</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute interaction effects</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>coef.mat <span class="ot">&lt;-</span> <span class="fu">summary</span>(mod.interaction)<span class="sc">$</span>coefficients</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>var.mat  <span class="ot">&lt;-</span> <span class="fu">vcov</span>(mod.interaction)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>beta_int <span class="ot">&lt;-</span> coef.mat[<span class="st">"AvePM"</span>, <span class="dv">1</span>] <span class="sc">+</span> coef.mat[<span class="st">"AvePM:ClimateRegionupper_midwest"</span>, <span class="dv">1</span>]</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>var_int <span class="ot">&lt;-</span> var.mat[<span class="st">"AvePM"</span>, <span class="st">"AvePM"</span>] <span class="sc">+</span> var.mat[<span class="st">"AvePM:ClimateRegionupper_midwest"</span>, <span class="st">"AvePM:ClimateRegionupper_midwest"</span>] <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> var.mat[<span class="st">"AvePM"</span>, <span class="st">"AvePM:ClimateRegionupper_midwest"</span>]</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>se_int <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">abs</span>(var_int))</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>lci_int <span class="ot">&lt;-</span> beta_int <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_int</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>uci_int <span class="ot">&lt;-</span> beta_int <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_int</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"Estimate:"</span>, <span class="fu">round</span>(beta_int, <span class="dv">3</span>), <span class="st">"95% CI:"</span>, <span class="fu">round</span>(lci_int, <span class="dv">3</span>), <span class="st">"-"</span>, <span class="fu">round</span>(uci_int, <span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Estimate: 0.027 95% CI: -0.24 - 0.295"</code></pre>
+</div>
+</div>
+</section>
+<section id="breakout-exercises" class="level2 cell">
+<h2 class="anchored" data-anchor-id="breakout-exercises">9: Breakout Exercises</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: Unadjusted model</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>mod.unadj <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM, <span class="at">data =</span> dta)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.unadj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = AveBMI ~ AvePM, data = dta)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.0454 -0.8046 -0.1148  0.6432 13.1818 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 25.92726    0.33759  76.801  &lt; 2e-16 ***
+AvePM        0.19324    0.03224   5.993 3.96e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.41 on 498 degrees of freedom
+Multiple R-squared:  0.06726,   Adjusted R-squared:  0.06539 
+F-statistic: 35.91 on 1 and 498 DF,  p-value: 3.961e-09</code></pre>
+</div>
+</div>
+</section>
+<section id="breakout-exercise-1-change-in-bmi" class="level3">
+<h3 class="anchored" data-anchor-id="breakout-exercise-1-change-in-bmi">Breakout Exercise 1: Change in BMI</h3>
+<blockquote class="blockquote">
+<p><strong>Question:</strong> What is the expected change in BMI for each 5-unit increase in PM2.5?</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Answer:</strong> Multiply the PM2.5 coefficient (e.g., <code>beta</code>) by 5. If <code>beta = 0.15</code>, then 5 * 0.15 = <strong>0.75 unit increase in BMI</strong>.</p>
+</blockquote>
+</section>
+<section id="breakout-exercise-2-explore-a-covariate" class="level3">
+<h3 class="anchored" data-anchor-id="breakout-exercise-2-explore-a-covariate">Breakout Exercise 2: Explore a Covariate</h3>
+<blockquote class="blockquote">
+<p><strong>Question:</strong> Fit a model including only AvePM and MedHInc. How does the coefficient for AvePM change?</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>mod.exercise2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM <span class="sc">+</span> MedHInc, <span class="at">data =</span> dta)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod.exercise2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = AveBMI ~ AvePM + MedHInc, data = dta)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.0354 -0.7117 -0.0706  0.5752 13.0348 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  2.798e+01  4.280e-01  65.378  &lt; 2e-16 ***
+AvePM        1.434e-01  3.145e-02   4.561 6.41e-06 ***
+MedHInc     -3.122e-05  4.299e-06  -7.263 1.48e-12 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.342 on 497 degrees of freedom
+Multiple R-squared:  0.1568,    Adjusted R-squared:  0.1534 
+F-statistic:  46.2 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>Answer:</strong> Compare the AvePM coefficient to that from the full model. Interpret how adjusting for income alters the estimated effect.</p>
+</blockquote>
+</section>
+<section id="breakout-exercise-3-interpret-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="breakout-exercise-3-interpret-assumptions">Breakout Exercise 3: Interpret Assumptions</h3>
+<blockquote class="blockquote">
+<p><strong>Question:</strong> Which of the model diagnostic plots would indicate potential heteroskedasticity?</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Answer:</strong> The <strong>Residuals vs Fitted</strong> plot. A funnel shape suggests non-constant variance.</p>
+</blockquote>
+</section>
+<section id="data-manipulation" class="level2 cell">
+<h2 class="anchored" data-anchor-id="data-manipulation">10: Data Manipulation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>dta <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(ProjectFolder, <span class="st">"county_pm_bmi_census.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 972 Columns: 14
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): fips, geometry
+dbl (12): avePM.idw, aveBMI, AREA, PERIMETER, num.total, per.white, per.blac...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>dta <span class="ot">&lt;-</span> dta <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">AveBMIsq =</span> aveBMI<span class="sc">^</span><span class="dv">2</span>, <span class="at">AveObese =</span> <span class="fu">if_else</span>(aveBMI <span class="sc">&gt;=</span> <span class="dv">30</span>, <span class="st">"average obese"</span>, <span class="st">"average not obese"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="summarizing-data" class="level2 cell">
+<h2 class="anchored" data-anchor-id="summarizing-data">11: Summarizing Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>MeanPM <span class="ot">&lt;-</span> dta <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">meanPM =</span> <span class="fu">mean</span>(avePM.idw, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>MedianPM <span class="ot">&lt;-</span> dta <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">medianPM =</span> <span class="fu">median</span>(avePM.idw, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<hr>
+<p>This Quarto document covers the introduction, data exploration, regression modeling, assumption checks, and effect modification in the context of environmental epidemiology.</p>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

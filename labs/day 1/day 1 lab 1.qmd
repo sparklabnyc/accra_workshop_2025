@@ -1,0 +1,194 @@
+---
+title: "Introduction to methods in environmental epidemiology"
+subtitle: "Day 1 lab 1: Introduction to linear regression in environmental epidemiology"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+
+::: {.cell}
+## 0: Preparation
+
+Load necessary packages
+```{r}
+library(readr)
+library(dplyr)
+library(broom)
+library(here)
+```
+:::
+
+::: {.cell}
+## 0: Declare Folder Paths
+```{r}
+ProjectFolder <- here("data")
+```
+:::
+
+::: {.cell}
+## 1: Examine Data
+```{r}
+dta <- read_csv(here(ProjectFolder, "Lab1_2010_County_Data.csv"))
+
+# Confirm dimensions
+print(dim(dta))
+print(names(dta))
+head(dta)
+
+# View specific variables
+print(dta$AvePM[1:10])
+print(mode(dta$AvePM))
+print(length(dta$AvePM))
+
+# Summary statistics
+summary(dta)
+
+# Check specific statistics
+print(min(dta$AvePM))
+print(max(dta$AvePM))
+```
+:::
+
+::: {.cell}
+## 2: Plotting Data
+```{r}
+# Histogram
+hist(dta$AveBMI, breaks = 20, xlab = "Average BMI", ylab = "Count of Counties", main = "Histogram of Average BMI", las = 1)
+
+# Density
+plot(density(dta$AveBMI, na.rm = TRUE), col = "red", las = 1)
+
+# Boxplot
+boxplot(split(dta$AvePM, dta$ClimateRegion), xlab = "NOAA Climate Region", ylab = expression("Annual PM"[2.5]))
+
+# Scatterplot
+plot(x = dta$AvePM, y = dta$AveBMI, xlab = expression("Average PM"[2.5]), ylab = "Average BMI", main = "Scatterplot: County-average PM vs. BMI")
+abline(lm(AveBMI ~ AvePM, data = dta), col = "blue", lwd = 2)
+```
+:::
+
+## 3: Define Research Question
+
+In 2010, was county-average BMI associated with county-average annual PM2.5?
+
+::: {.cell}
+## 4: Review Data Structure
+```{r}
+summary(dta$AveBMI)
+hist(dta$AveBMI, freq = FALSE, xlab = "Average BMI", ylab = "Density", las = 1)
+lines(density(dta$AveBMI, na.rm = TRUE), col = "red")
+
+# Largest BMI
+LargestBMI <- dta[dta$AveBMI == max(dta$AveBMI), ]
+print(LargestBMI)
+```
+:::
+
+::: {.cell}
+## 5: Fit Regression Model
+```{r}
+mod <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, data = dta, na.action = na.omit)
+```
+:::
+
+::: {.cell}
+## 6: Review Model Results
+```{r}
+summary(mod)
+
+# Extract specific components
+coeffs <- summary(mod)$coefficients
+coeffs[2,]
+
+# Confidence intervals
+beta <- coeffs[2,1]
+se <- coeffs[2,2]
+lci <- beta - 1.96 * se
+uci <- beta + 1.96 * se
+
+# Visualize
+AvePM.range <- seq(min(dta$AvePM), max(dta$AvePM), length.out = 100)
+ChangeBMI <- AvePM.range * beta
+plot(AvePM.range, ChangeBMI, xlab = expression("Average PM"[2.5]), ylab = "Associated Change in Average BMI", type = "l", col = "red")
+abline(a = 0, b = lci, col = "gray")
+abline(a = 0, b = uci, col = "gray")
+```
+:::
+
+::: {.cell}
+## 7: Assess Model Assumptions
+```{r}
+par(mfrow = c(2, 2))
+plot(mod)
+```
+:::
+
+::: {.cell}
+## 8: Examine Effect Modification
+```{r}
+mod.interaction <- lm(AveBMI ~ AvePM*ClimateRegion + PerBlack + PerLatinx + PerAsianAm + MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp, data = dta, na.action = na.omit)
+summary(mod.interaction)
+
+# Compute interaction effects
+coef.mat <- summary(mod.interaction)$coefficients
+var.mat  <- vcov(mod.interaction)
+
+beta_int <- coef.mat["AvePM", 1] + coef.mat["AvePM:ClimateRegionupper_midwest", 1]
+var_int <- var.mat["AvePM", "AvePM"] + var.mat["AvePM:ClimateRegionupper_midwest", "AvePM:ClimateRegionupper_midwest"] + 2 * var.mat["AvePM", "AvePM:ClimateRegionupper_midwest"]
+se_int <- sqrt(abs(var_int))
+lci_int <- beta_int - 1.96 * se_int
+uci_int <- beta_int + 1.96 * se_int
+
+paste("Estimate:", round(beta_int, 3), "95% CI:", round(lci_int, 3), "-", round(uci_int, 3))
+```
+:::
+
+::: {.cell}
+## 9: Breakout Exercises
+```{r}
+# Example: Unadjusted model
+mod.unadj <- lm(AveBMI ~ AvePM, data = dta)
+summary(mod.unadj)
+```
+:::
+
+### Breakout Exercise 1: Change in BMI
+> **Question:** What is the expected change in BMI for each 5-unit increase in PM2.5?
+
+> **Answer:** Multiply the PM2.5 coefficient (e.g., `beta`) by 5. If `beta = 0.15`, then 5 * 0.15 = **0.75 unit increase in BMI**.
+
+### Breakout Exercise 2: Explore a Covariate
+> **Question:** Fit a model including only AvePM and MedHInc. How does the coefficient for AvePM change?
+
+```{r}
+mod.exercise2 <- lm(AveBMI ~ AvePM + MedHInc, data = dta)
+summary(mod.exercise2)
+```
+> **Answer:** Compare the AvePM coefficient to that from the full model. Interpret how adjusting for income alters the estimated effect.
+
+### Breakout Exercise 3: Interpret Assumptions
+> **Question:** Which of the model diagnostic plots would indicate potential heteroskedasticity?
+
+> **Answer:** The **Residuals vs Fitted** plot. A funnel shape suggests non-constant variance.
+
+::: {.cell}
+## 10: Data Manipulation
+```{r}
+dta <- read_csv(here(ProjectFolder, "county_pm_bmi_census.csv"))
+dta <- dta %>% mutate(AveBMIsq = aveBMI^2, AveObese = if_else(aveBMI >= 30, "average obese", "average not obese"))
+```
+:::
+
+::: {.cell}
+## 11: Summarizing Data
+```{r}
+MeanPM <- dta %>% summarize(meanPM = mean(avePM.idw, na.rm = TRUE))
+MedianPM <- dta %>% summarize(medianPM = median(avePM.idw, na.rm = TRUE))
+```
+:::
+
+---
+
+This Quarto document covers the introduction, data exploration, regression modeling, assumption checks, and effect modification in the context of environmental epidemiology.
