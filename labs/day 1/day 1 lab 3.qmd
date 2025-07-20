@@ -57,6 +57,17 @@ model_normal <- lm(mortality ~ Temp + Ozone, data = data)
 summary(model_normal)
 ```
 
+```{r normal-goodness-of-fit}
+par(mfrow = c(1, 2))
+plot(model_normal$fitted.values, resid(model_normal),
+     main = "Residuals vs Fitted",
+     xlab = "Fitted values", ylab = "Residuals")
+abline(h = 0, lty = 2)
+hist(resid(model_normal), main = "Histogram of Residuals", xlab = "Residuals")
+```
+
+If residuals are roughly centered around zero and evenly spread (no funnel shape), and the histogram appears approximately normal, then the linear model fits reasonably well.
+
 ### Plot
 
 ```{r real-normal-plot}
@@ -69,9 +80,18 @@ ggplot(data, aes(x = Temp, y = mortality)) +
 ## 2. Poisson Regression (Count Data)
 
 ```{r real-poisson-model}
-model_poisson <- glm(mortality ~ Temp + Ozone + day_of_week, family = poisson(), data = data)
+model_poisson <- glm(mortality ~ Temp + Ozone + day_of_week, 
+                     family = poisson(), 
+                     data = data)
 summary(model_poisson)
 ```
+
+```{r poisson-goodness-of-fit}
+p_value <- 1 - pchisq(model_poisson$deviance, df = model_poisson$df.residual)
+cat("Deviance GOF Test p-value:", round(p_value, 4))
+```
+
+If the p-value is greater than 0.05, it suggests that the model fits the data well. If it is less than 0.05, the model may not fit well.
 
 ### Plot
 
@@ -86,9 +106,19 @@ ggplot(data, aes(x = pred_mortality, y = mortality)) +
 ## 3. Logistic Regression (Bernoulli Likelihood)
 
 ```{r real-logistic-model}
-model_logistic <- glm(high_mort ~ Temp + Ozone, family = binomial(), data = data)
+model_logistic <- glm(high_mort ~ Temp + Ozone, 
+                      family = binomial(), 
+                      data = data)
 summary(model_logistic)
 ```
+
+```{r logistic-goodness-of-fit}
+library(ResourceSelection)
+hoslem_test <- hoslem.test(model_logistic$y, fitted(model_logistic), g = 10)
+cat("Hosmer-Lemeshow Test p-value:", round(hoslem_test$p.value, 4))
+```
+
+If the Hosmer-Lemeshow test p-value is > 0.05, this suggests no significant difference between predicted and observed values, indicating good fit. A low p-value implies poor fit.
 
 ### Plot
 
@@ -101,9 +131,18 @@ ggplot(data, aes(x = fitted(model_logistic), fill = as.factor(high_mort))) +
 ## 4. Binomial Regression (Grouped Binary Outcomes)
 
 ```{r real-binomial-model}
-model_binomial <- glm(cbind(deaths_over5, total_deaths - deaths_over5) ~ Temp + Ozone, family = binomial(), data = data)
+model_binomial <- glm(cbind(deaths_over5, total_deaths - deaths_over5) ~ Temp + Ozone, 
+                      family = binomial(), 
+                      data = data)
 summary(model_binomial)
 ```
+
+```{r binomial-goodness-of-fit}
+p_value_binomial <- 1 - pchisq(model_binomial$deviance, df = model_binomial$df.residual)
+cat("Binomial Deviance GOF Test p-value:", round(p_value_binomial, 4))
+```
+
+If the p-value is greater than 0.05, it suggests that the model fits the data well. If it is less than 0.05, the model may not fit well.
 
 ### Plot
 

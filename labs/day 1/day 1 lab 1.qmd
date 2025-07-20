@@ -7,6 +7,7 @@ format: html
 editor: visual
 ---
 
+This lab will involve taking some models and concepts from the Introduction to methods in environmental epidemiology 1 lecture and introduce you to the way linear regression works
 
 ::: {.cell}
 ## 0: Preparation
@@ -89,7 +90,9 @@ print(LargestBMI)
 ::: {.cell}
 ## 5: Fit Regression Model
 ```{r}
-mod <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, data = dta, na.action = na.omit)
+mod <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + MedHInc + 
+            MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
+          data = dta, na.action = na.omit)
 ```
 :::
 

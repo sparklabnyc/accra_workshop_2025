@@ -109,6 +109,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<p>This lab will involve taking some models and concepts from the Introduction to methods in environmental epidemiology 1 lecture and introduce you to the way linear regression works</p>
 <section id="preparation" class="level2 cell">
 <h2 class="anchored" data-anchor-id="preparation">0: Preparation</h2>
 <p>Load necessary packages</p>
@@ -302,7 +303,9 @@ dbl (12): AveBMI, AvePM, NumTot, MedHVal, MedHInc, PerAsianAm, PerBlack, Per...
 <section id="fit-regression-model" class="level2 cell">
 <h2 class="anchored" data-anchor-id="fit-regression-model">5: Fit Regression Model</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM <span class="sc">+</span> PerBlack <span class="sc">+</span> PerLatinx <span class="sc">+</span> PerAsianAm <span class="sc">+</span> MedHInc <span class="sc">+</span> MedHVal <span class="sc">+</span> LTHS <span class="sc">+</span> FemaleUnemp <span class="sc">+</span> MaleUnemp <span class="sc">+</span> ClimateRegion, <span class="at">data =</span> dta, <span class="at">na.action =</span> na.omit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(AveBMI <span class="sc">~</span> AvePM <span class="sc">+</span> PerBlack <span class="sc">+</span> PerLatinx <span class="sc">+</span> PerAsianAm <span class="sc">+</span> MedHInc <span class="sc">+</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>            MedHVal <span class="sc">+</span> LTHS <span class="sc">+</span> FemaleUnemp <span class="sc">+</span> MaleUnemp <span class="sc">+</span> ClimateRegion, </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> dta, <span class="at">na.action =</span> na.omit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="review-model-results" class="level2 cell">
