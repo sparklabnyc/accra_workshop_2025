@@ -38,7 +38,7 @@ dta <- read_csv(here(ProjectFolder, "2010_County_Data.csv")) %>%
 ```
 :::
 
-### 2: Define research question
+### 2: Define research uestion
 
 Does the distribution of county-average BMI vary by annual PM2.5?
 
@@ -91,8 +91,8 @@ rm(list = ls(pattern = "dta."))
 Mod50th <- rq(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 
             MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
             data = dta, tau = 0.5)
-summary(Mod50th, alpha = 0.05)
-Coeff.Mod50th <- summary(Mod50th, alpha = 0.05)$coefficients
+summary(Mod50th)
+Coeff.Mod50th <- summary(Mod50th)$coefficients
 
 # Fit mean model
 ModMean <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + 

@@ -165,8 +165,8 @@ dbl (12): AveBMI, AvePM, NumTot, MedHVal, MedHInc, PerAsianAm, PerBlack, Per...
 </div>
 </div>
 </section>
-<section id="define-research-question" class="level3">
-<h3 class="anchored" data-anchor-id="define-research-question">2: Define Research Question</h3>
+<section id="define-research-uestion" class="level3">
+<h3 class="anchored" data-anchor-id="define-research-uestion">2: Define research uestion</h3>
 <p>Does the distribution of county-average BMI vary by annual PM2.5?</p>
 </section>
 <section id="calculate-and-compare-quantiles" class="level3">
@@ -235,7 +235,7 @@ dbl (12): AveBMI, AvePM, NumTot, MedHVal, MedHInc, PerAsianAm, PerBlack, Per...
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rq.fit.br(x, y, tau = tau, ...): Solution may be nonunique</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Mod50th, <span class="at">alpha =</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Mod50th)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rq.fit.br(x, y, tau = tau, ci = TRUE, ...): Solution may be
 nonunique</code></pre>
@@ -250,26 +250,26 @@ tau: [1] 0.5
 
 Coefficients:
                            coefficients   lower bd       upper bd      
-(Intercept)                  2.670053e+01   2.553185e+01   2.823893e+01
-AvePM                        8.522000e-02  -1.072000e-02   1.722500e-01
-PerBlack                     9.367100e-01  -5.118400e-01   2.963200e+00
-PerLatinx                    1.073300e-01  -8.558800e-01   2.561830e+00
-PerAsianAm                  -6.012490e+00  -1.250895e+01  -4.623600e-01
+(Intercept)                  2.670053e+01   2.557008e+01   2.790359e+01
+AvePM                        8.522000e-02   5.320000e-03   1.567700e-01
+PerBlack                     9.367100e-01  -2.838200e-01   2.466040e+00
+PerLatinx                    1.073300e-01  -1.824500e-01   2.020720e+00
+PerAsianAm                  -6.012490e+00  -1.187508e+01  -6.967200e-01
 MedHInc                      0.000000e+00  -1.000000e-05   2.000000e-05
 MedHVal                      0.000000e+00  -1.000000e-05   0.000000e+00
-LTHS                         1.339000e-02  -8.840000e-03   3.028000e-02
-FemaleUnemp                 -6.000000e-05  -1.186900e-01   8.646000e-02
-MaleUnemp                    1.030100e-01   2.387000e-02   1.429200e-01
-ClimateRegionnorthwest      -1.905800e-01  -8.662300e-01   7.489300e-01
-ClimateRegionohio_valley    -3.701800e-01  -7.961200e-01   8.687000e-02
-ClimateRegionrockies        -1.491900e-01  -8.165300e-01   8.082900e-01
-ClimateRegionsouth          -1.577000e-02  -6.193700e-01   5.577200e-01
-ClimateRegionsoutheast      -4.258800e-01  -8.208000e-01   1.363000e-02
-ClimateRegionsouthwest      -8.658800e-01 -1.797693e+308  1.797693e+308
-ClimateRegionupper_midwest  -1.814400e-01  -7.073600e-01   2.982100e-01
+LTHS                         1.339000e-02  -2.290000e-03   2.846000e-02
+FemaleUnemp                 -6.000000e-05  -1.117100e-01   7.472000e-02
+MaleUnemp                    1.030100e-01   2.511000e-02   1.224100e-01
+ClimateRegionnorthwest      -1.905800e-01  -5.934400e-01   6.225800e-01
+ClimateRegionohio_valley    -3.701800e-01  -7.778200e-01   4.709000e-02
+ClimateRegionrockies        -1.491900e-01  -5.133700e-01   3.995200e-01
+ClimateRegionsouth          -1.577000e-02  -5.424400e-01   4.477900e-01
+ClimateRegionsoutheast      -4.258800e-01  -8.029400e-01  -1.478000e-02
+ClimateRegionsouthwest      -8.658800e-01  -1.543090e+00  -4.616900e-01
+ClimateRegionupper_midwest  -1.814400e-01  -6.901200e-01   1.942100e-01
 ClimateRegionwest           -1.461600e-01 -1.797693e+308  1.797693e+308</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Coeff.Mod50th <span class="ot">&lt;-</span> <span class="fu">summary</span>(Mod50th, <span class="at">alpha =</span> <span class="fl">0.05</span>)<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Coeff.Mod50th <span class="ot">&lt;-</span> <span class="fu">summary</span>(Mod50th)<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rq.fit.br(x, y, tau = tau, ci = TRUE, ...): Solution may be
 nonunique</code></pre>
