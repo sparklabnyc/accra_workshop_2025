@@ -70,7 +70,7 @@ abline(lm(AveBMI ~ AvePM, data = dta), col = "blue", lwd = 2)
 ```
 :::
 
-## 3: Define Research Question
+## 3: Define research question
 
 In 2010, was county-average BMI associated with county-average annual PM2.5?
 

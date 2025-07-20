@@ -32,7 +32,7 @@ ProjectFolder <- here("data")
 ```
 :::
 
-## Introduction
+## Define research question
 
 This lab demonstrates how to fit various likelihood-based regression models in the context of environmental epidemiology using real data (`airquality`) and simulated health outcomes.
 

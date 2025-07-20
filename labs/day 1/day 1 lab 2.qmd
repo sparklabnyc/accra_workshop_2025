@@ -38,7 +38,7 @@ dta <- read_csv(here(ProjectFolder, "2010_County_Data.csv")) %>%
 ```
 :::
 
-### 2: Define Research Question
+### 2: Define research question
 
 Does the distribution of county-average BMI vary by annual PM2.5?
 

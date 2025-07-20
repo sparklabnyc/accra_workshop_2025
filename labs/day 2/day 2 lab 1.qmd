@@ -1,0 +1,198 @@
+---
+title: "Modelling of complex, non-linear relationships in time series data while accounting for delayed effects "
+subtitle: "Day 2 lab 1: Non-linearity"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+::: cell
+## 0: Preparation
+
+Load necessary packages
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(mgcv)
+library(splines)
+library(here)
+
+ProjectFolder <- here("data")
+```
+:::
+
+::: cell
+## 0: Declare Folder Paths
+
+```{r}
+ProjectFolder <- here("data")
+```
+:::
+
+## 1: Define Research Question
+
+Was county-average BMI associated with county-average PM2.5 in 2010? What is the shape of the relationship?
+
+::: cell
+## 2: Load Data
+
+```{r}
+df <- read_csv(here::here(ProjectFolder, "2010_County_Data.csv")) %>%
+  filter(complete.cases(.))
+```
+:::
+
+::: cell
+## 3: Quadratic Term
+
+```{r}
+mod.quad <- lm(AveBMI ~ AvePM + I(AvePM^2) + FemaleUnemp + MaleUnemp + LTHS +
+                 MedHInc + MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion, 
+               data = df)
+summary(mod.quad)
+
+# Compare to linear model
+mod.lin <- lm(AveBMI ~ AvePM + FemaleUnemp + MaleUnemp + LTHS +
+                MedHInc + MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion, 
+              data = df)
+anova(mod.quad, mod.lin)
+
+# Plot Exposure-Response Curve
+predBMI.quad <- as.data.frame(predict(mod.quad, se.fit = TRUE, type = "terms")) %>%
+  mutate(pred = fit.AvePM + fit.I.AvePM.2.) %>%
+  select(pred) %>%
+  bind_cols(df) %>%
+  mutate(predBMI = pred + mean(AveBMI))
+
+ggplot(predBMI.quad, aes(x = AvePM, y = predBMI)) +
+  geom_line() +
+  xlab(expression("Average Annual PM"[2.5])) +
+  ylab("Predicted Average BMI") +
+  ylim(26, 29) +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20))
+```
+:::
+
+::: cell
+## 4: Piecewise Linear Spline Term
+
+```{r}
+df <- df %>% mutate(AvePM.high = (AvePM - 12) * (AvePM > 12))
+mod.pls <- lm(AveBMI ~ AvePM + AvePM.high + FemaleUnemp + MaleUnemp + LTHS +
+                MedHInc + MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion, 
+              data = df)
+summary(mod.pls)
+
+predBMI.pls <- as.data.frame(predict(mod.pls, se.fit = TRUE, type = "terms")) %>%
+  mutate(pred.centered = fit.AvePM + fit.AvePM.high) %>%
+  select(pred.centered) %>%
+  bind_cols(df) %>%
+  mutate(predBMI = pred.centered + mean(AveBMI))
+
+ggplot(predBMI.pls, aes(AvePM, predBMI)) +
+  geom_line() +
+  xlab(expression("Average Annual PM"[2.5])) +
+  ylab("Predicted Average BMI") +
+  ylim(26, 29) +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20))
+```
+:::
+
+::: cell
+## 5: Natural Spline Term
+
+```{r}
+mod.ns.3 <- lm(AveBMI ~ ns(AvePM, df = 3) + FemaleUnemp + MaleUnemp + LTHS +
+                 MedHInc + MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion, 
+               data = df)
+summary(mod.ns.3)
+
+predBMI.ns.3 <- as.data.frame(predict(mod.ns.3, se.fit = TRUE, type = "terms")) %>%
+  mutate(pred.centered = fit.ns.AvePM..df...3.,
+         se = se.fit.ns.AvePM..df...3.,
+         lci.centered = pred.centered - 1.96 * se,
+         uci.centered = pred.centered + 1.96 * se) %>%
+  bind_cols(df) %>%
+  mutate(predBMI = pred.centered + mean(AveBMI),
+         lciBMI = lci.centered + mean(AveBMI),
+         uciBMI = uci.centered + mean(AveBMI))
+
+ggplot(predBMI.ns.3, aes(AvePM)) +
+  geom_line(aes(y = predBMI)) +
+  geom_line(aes(y = lciBMI), color = "darkgrey") +
+  geom_line(aes(y = uciBMI), color = "darkgrey") +
+  xlab(expression("Average Annual PM"[2.5])) +
+  ylab("Predicted BMI (95% CI)") +
+  ylim(26, 29) +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20))
+```
+:::
+
+::: cell
+## 6: Penalized Spline Term
+
+```{r}
+mod.ps <- gam(AveBMI ~ s(AvePM) + FemaleUnemp + MaleUnemp + LTHS +
+                MedHInc + MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion, 
+              data = df)
+summary(mod.ps)
+
+predBMI.ps <- as.data.frame(predict(mod.ps, se.fit = TRUE, type = "terms")) %>%
+  mutate(pred.centered = fit.s.AvePM.,
+         se = se.fit.s.AvePM.,
+         lci.centered = pred.centered - 1.96 * se,
+         uci.centered = pred.centered + 1.96 * se) %>%
+  bind_cols(df) %>%
+  mutate(predBMI = pred.centered + mean(AveBMI),
+         lciBMI = lci.centered + mean(AveBMI),
+         uciBMI = uci.centered + mean(AveBMI))
+
+ggplot(predBMI.ps, aes(AvePM)) +
+  geom_line(aes(y = predBMI)) +
+  geom_line(aes(y = lciBMI), color = "darkgrey") +
+  geom_line(aes(y = uciBMI), color = "darkgrey") +
+  xlab(expression("Average Annual PM"[2.5])) +
+  ylab("Predicted BMI (95% CI)") +
+  ylim(26, 29) +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20))
+```
+:::
+
+::: cell
+## 7: Compare All Models
+
+```{r}
+predBMI.lin <- predict(mod.lin, se.fit = TRUE, type = "terms") %>%
+  as.data.frame() %>%
+  mutate(pred = fit.AvePM) %>%
+  select(pred) %>%
+  bind_cols(df) %>%
+  mutate(predBMI = pred + mean(AveBMI), ModelName = "Linear")
+
+predBMI.quad <- predBMI.quad %>% mutate(ModelName = "Quadratic")
+predBMI.pls <- predBMI.pls %>% mutate(ModelName = "Piecewise Linear Spline")
+predBMI.ns.3 <- predBMI.ns.3 %>% mutate(ModelName = "Natural Spline 3 df")
+predBMI.ps <- predBMI.ps %>% mutate(ModelName = "Penalized Spline")
+
+predBMI.tot <- bind_rows(predBMI.lin, predBMI.quad, predBMI.pls, predBMI.ns.3, predBMI.ps)
+
+predBMI.tot <- predBMI.tot %>% mutate(ModelName = factor(ModelName,
+                                  levels = c("Linear", "Quadratic", "Piecewise Linear Spline", 
+                                             "Natural Spline 3 df", "Penalized Spline")))
+
+ggplot(predBMI.tot, aes(AvePM)) +
+  geom_line(aes(y = predBMI, color = ModelName)) +
+  xlab(expression("Average Annual PM"[2.5])) +
+  ylab("Predicted BMI") +
+  ylim(26, 29) +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 20))
+```
+:::

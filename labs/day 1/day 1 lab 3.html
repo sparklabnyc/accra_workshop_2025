@@ -188,19 +188,19 @@ lm(formula = mortality ~ Temp + Ozone, data = data)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.1125 -1.1216 -0.0759  0.9625  3.8896 
+-2.8895 -1.3564 -0.2601  1.0244  4.9452 
 
 Coefficients:
              Estimate Std. Error t value Pr(&gt;|t|)  
-(Intercept) -1.435160   1.421605  -1.010   0.3149  
-Temp         0.044623   0.020229   2.206   0.0294 *
-Ozone        0.014200   0.005817   2.441   0.0162 *
+(Intercept) -0.793853   1.769061  -0.449   0.6545  
+Temp         0.042367   0.025173   1.683   0.0951 .
+Ozone        0.004172   0.007238   0.576   0.5655  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 1.473 on 113 degrees of freedom
-Multiple R-squared:  0.2407,    Adjusted R-squared:  0.2272 
-F-statistic: 17.91 on 2 and 113 DF,  p-value: 1.756e-07</code></pre>
+Residual standard error: 1.833 on 113 degrees of freedom
+Multiple R-squared:  0.07242,   Adjusted R-squared:  0.056 
+F-statistic: 4.411 on 2 and 113 DF,  p-value: 0.0143</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -246,23 +246,23 @@ glm(formula = mortality ~ Temp + Ozone + day_of_week, family = poisson(),
 
 Coefficients:
                 Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)    -1.082023   0.675783  -1.601   0.1093  
-Temp            0.019215   0.008750   2.196   0.0281 *
-Ozone           0.004714   0.002227   2.117   0.0343 *
-day_of_weekMon  0.377902   0.303415   1.245   0.2129  
-day_of_weekSat  0.250959   0.271264   0.925   0.3549  
-day_of_weekSun  0.180594   0.272931   0.662   0.5082  
-day_of_weekThu  0.300581   0.264392   1.137   0.2556  
-day_of_weekTue  0.509072   0.269844   1.887   0.0592 .
-day_of_weekWed  0.406897   0.266991   1.524   0.1275  
+(Intercept)    -0.284699   0.628501  -0.453   0.6506  
+Temp            0.016351   0.008713   1.877   0.0606 .
+Ozone           0.001588   0.002329   0.682   0.4952  
+day_of_weekMon  0.113599   0.205279   0.553   0.5800  
+day_of_weekSat -0.087511   0.191423  -0.457   0.6476  
+day_of_weekSun -0.281443   0.211944  -1.328   0.1842  
+day_of_weekThu  0.099410   0.223716   0.444   0.6568  
+day_of_weekTue -0.138377   0.197227  -0.702   0.4829  
+day_of_weekWed -0.248160   0.204040  -1.216   0.2239  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 140.01  on 115  degrees of freedom
-Residual deviance: 105.89  on 107  degrees of freedom
-AIC: 423.78
+    Null deviance: 161.52  on 115  degrees of freedom
+Residual deviance: 144.71  on 107  degrees of freedom
+AIC: 461.76
 
 Number of Fisher Scoring iterations: 5</code></pre>
 </div>
@@ -271,7 +271,7 @@ Number of Fisher Scoring iterations: 5</code></pre>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(model_poisson<span class="sc">$</span>deviance, <span class="at">df =</span> model_poisson<span class="sc">$</span>df.residual)</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Deviance GOF Test p-value:"</span>, <span class="fu">round</span>(p_value, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Deviance GOF Test p-value: 0.5123</code></pre>
+<pre><code>Deviance GOF Test p-value: 0.0089</code></pre>
 </div>
 </div>
 <p>If the p-value is greater than 0.05, it suggests that the model fits the data well. If it is less than 0.05, the model may not fit well.</p>
@@ -306,20 +306,18 @@ glm(formula = high_mort ~ Temp + Ozone, family = binomial(),
     data = data)
 
 Coefficients:
-             Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept) -5.056186   2.895377  -1.746   0.0808 .
-Temp         0.036365   0.039361   0.924   0.3555  
-Ozone        0.012035   0.009451   1.273   0.2029  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+             Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept) -3.853852   2.711675  -1.421    0.155
+Temp         0.022688   0.037320   0.608    0.543
+Ozone        0.011471   0.009313   1.232    0.218
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 106.649  on 115  degrees of freedom
-Residual deviance:  98.883  on 113  degrees of freedom
-AIC: 104.88
+    Null deviance: 109.73  on 115  degrees of freedom
+Residual deviance: 104.24  on 113  degrees of freedom
+AIC: 110.24
 
-Number of Fisher Scoring iterations: 5</code></pre>
+Number of Fisher Scoring iterations: 4</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -327,7 +325,7 @@ Number of Fisher Scoring iterations: 5</code></pre>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>hoslem_test <span class="ot">&lt;-</span> <span class="fu">hoslem.test</span>(model_logistic<span class="sc">$</span>y, <span class="fu">fitted</span>(model_logistic), <span class="at">g =</span> <span class="dv">10</span>)</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Hosmer-Lemeshow Test p-value:"</span>, <span class="fu">round</span>(hoslem_test<span class="sc">$</span>p.value, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Hosmer-Lemeshow Test p-value: 0.15</code></pre>
+<pre><code>Hosmer-Lemeshow Test p-value: 0.1871</code></pre>
 </div>
 </div>
 <p>If the Hosmer-Lemeshow test p-value is &gt; 0.05, this suggests no significant difference between predicted and observed values, indicating good fit. A low p-value implies poor fit.</p>
@@ -357,16 +355,16 @@ glm(formula = cbind(deaths_over5, total_deaths - deaths_over5) ~
     Temp + Ozone, family = binomial(), data = data)
 
 Coefficients:
-             Estimate Std. Error z value Pr(&gt;|z|)
-(Intercept) 1.952e-02  7.503e-01   0.026    0.979
-Temp        5.697e-03  1.052e-02   0.541    0.588
-Ozone       1.296e-05  2.783e-03   0.005    0.996
+            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept) 0.034319   0.720196   0.048    0.962
+Temp        0.002984   0.010156   0.294    0.769
+Ozone       0.001329   0.002750   0.483    0.629
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 147.36  on 115  degrees of freedom
-Residual deviance: 146.79  on 113  degrees of freedom
-AIC: 407.1
+    Null deviance: 121.84  on 115  degrees of freedom
+Residual deviance: 120.84  on 113  degrees of freedom
+AIC: 396.33
 
 Number of Fisher Scoring iterations: 4</code></pre>
 </div>
@@ -375,7 +373,7 @@ Number of Fisher Scoring iterations: 4</code></pre>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>p_value_binomial <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(model_binomial<span class="sc">$</span>deviance, <span class="at">df =</span> model_binomial<span class="sc">$</span>df.residual)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Binomial Deviance GOF Test p-value:"</span>, <span class="fu">round</span>(p_value_binomial, <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Binomial Deviance GOF Test p-value: 0.0179</code></pre>
+<pre><code>Binomial Deviance GOF Test p-value: 0.2897</code></pre>
 </div>
 </div>
 <p>If the p-value is greater than 0.05, it suggests that the model fits the data well. If it is less than 0.05, the model may not fit well.</p>
