@@ -9,10 +9,11 @@ editor: visual
 
 This lab will involve taking some models and concepts from the Introduction to methods in environmental epidemiology 1 lecture and introduce you to the way linear regression works
 
-::: {.cell}
+::: cell
 ## 0: Preparation
 
 Load necessary packages
+
 ```{r}
 library(readr)
 library(dplyr)
@@ -21,15 +22,17 @@ library(here)
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 0: Declare Folder Paths
+
 ```{r}
 ProjectFolder <- here("data")
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 1: Examine Data
+
 ```{r}
 dta <- read_csv(here(ProjectFolder, "Lab1_2010_County_Data.csv"))
 
@@ -52,8 +55,9 @@ print(max(dta$AvePM))
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 2: Plotting Data
+
 ```{r}
 # Histogram
 hist(dta$AveBMI, breaks = 20, xlab = "Average BMI", ylab = "Count of Counties", main = "Histogram of Average BMI", las = 1)
@@ -74,8 +78,9 @@ abline(lm(AveBMI ~ AvePM, data = dta), col = "blue", lwd = 2)
 
 In 2010, was county-average BMI associated with county-average annual PM2.5?
 
-::: {.cell}
+::: cell
 ## 4: Review Data Structure
+
 ```{r}
 summary(dta$AveBMI)
 hist(dta$AveBMI, freq = FALSE, xlab = "Average BMI", ylab = "Density", las = 1)
@@ -87,8 +92,9 @@ print(LargestBMI)
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 5: Fit Regression Model
+
 ```{r}
 mod <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + MedHInc + 
             MedHVal + LTHS + FemaleUnemp + MaleUnemp + ClimateRegion, 
@@ -96,8 +102,9 @@ mod <- lm(AveBMI ~ AvePM + PerBlack + PerLatinx + PerAsianAm + MedHInc +
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 6: Review Model Results
+
 ```{r}
 summary(mod)
 
@@ -120,16 +127,18 @@ abline(a = 0, b = uci, col = "gray")
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 7: Assess Model Assumptions
+
 ```{r}
 par(mfrow = c(2, 2))
 plot(mod)
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 8: Examine Effect Modification
+
 ```{r}
 mod.interaction <- lm(AveBMI ~ AvePM*ClimateRegion + PerBlack + PerLatinx + PerAsianAm + MedHInc + MedHVal + LTHS + FemaleUnemp + MaleUnemp, data = dta, na.action = na.omit)
 summary(mod.interaction)
@@ -148,8 +157,9 @@ paste("Estimate:", round(beta_int, 3), "95% CI:", round(lci_int, 3), "-", round(
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 9: Breakout Exercises
+
 ```{r}
 # Example: Unadjusted model
 mod.unadj <- lm(AveBMI ~ AvePM, data = dta)
@@ -158,40 +168,46 @@ summary(mod.unadj)
 :::
 
 ### Breakout Exercise 1: Change in BMI
+
 > **Question:** What is the expected change in BMI for each 5-unit increase in PM2.5?
 
-> **Answer:** Multiply the PM2.5 coefficient (e.g., `beta`) by 5. If `beta = 0.15`, then 5 * 0.15 = **0.75 unit increase in BMI**.
+> **Answer:** Multiply the PM2.5 coefficient (e.g., `beta`) by 5. If `beta = 0.15`, then 5 \* 0.15 = **0.75 unit increase in BMI**.
 
 ### Breakout Exercise 2: Explore a Covariate
+
 > **Question:** Fit a model including only AvePM and MedHInc. How does the coefficient for AvePM change?
 
 ```{r}
 mod.exercise2 <- lm(AveBMI ~ AvePM + MedHInc, data = dta)
 summary(mod.exercise2)
 ```
+
 > **Answer:** Compare the AvePM coefficient to that from the full model. Interpret how adjusting for income alters the estimated effect.
 
 ### Breakout Exercise 3: Interpret Assumptions
+
 > **Question:** Which of the model diagnostic plots would indicate potential heteroskedasticity?
 
 > **Answer:** The **Residuals vs Fitted** plot. A funnel shape suggests non-constant variance.
 
-::: {.cell}
+::: cell
 ## 10: Data Manipulation
+
 ```{r}
 dta <- read_csv(here(ProjectFolder, "county_pm_bmi_census.csv"))
 dta <- dta %>% mutate(AveBMIsq = aveBMI^2, AveObese = if_else(aveBMI >= 30, "average obese", "average not obese"))
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 11: Summarizing Data
+
 ```{r}
 MeanPM <- dta %>% summarize(meanPM = mean(avePM.idw, na.rm = TRUE))
 MedianPM <- dta %>% summarize(medianPM = median(avePM.idw, na.rm = TRUE))
 ```
 :::
 
----
+------------------------------------------------------------------------
 
 This Quarto document covers the introduction, data exploration, regression modeling, assumption checks, and effect modification in the context of environmental epidemiology.
