@@ -1,5 +1,5 @@
 ---
-title: "Modelling of complex, non-linear relationships in time series data while accounting for delayed effects "
+title: "Modelling of complex, non-linear relationships in time series data while accounting for delayed effects"
 subtitle: "Day 2 lab 2: Case crossover"
 author: "Robbie M. Parks"
 date: today
