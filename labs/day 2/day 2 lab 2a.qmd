@@ -1,0 +1,177 @@
+---
+title: "Modelling of complex, non-linear relationships in time series data while accounting for delayed effects "
+subtitle: "Day 2 lab 2: Case crossover"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+## Pre-Class Material
+
+### 0: Preparation
+
+::: cell
+```{r}
+library(readr)
+library(dplyr)
+library(survival)
+library(splines)
+library(pspline)
+library(ggplot2)
+library(lubridate)
+
+library(here)
+ProjectFolder <- here("data")
+```
+:::
+
+## 1: Define Research Question
+
+Research Question: Does PM2.5 increase the likelihood that a county's average BMI is greater than 28 kg/m2?
+
+::: {.cell}
+## 2: Logistic Model
+
+```{r}
+dta <- read_csv(here::here(ProjectFolder, "2010_County_Data.csv")) %>% 
+  filter(complete.cases(.)) %>% 
+  mutate(AveObese = if_else(AveBMI > 28, 1, 0))
+
+mod.log <- glm(AveObese ~ AvePM + FemaleUnemp + MaleUnemp + LTHS + MedHInc + 
+               MedHVal + PerBlack + PerLatinx + PerAsianAm + ClimateRegion,
+               family = binomial(link = "logit"), data = dta)
+
+summary(mod.log)
+
+coeff.mat <- summary(mod.log)$coef
+coeff_pm <- coeff.mat[2,1]
+se_pm <- coeff.mat[2,2]
+
+fit.or <- exp(coeff_pm)
+lci.or <- exp(coeff_pm - 1.96*se_pm)
+uci.or <- exp(coeff_pm + 1.96*se_pm)
+
+cat(paste0("Odds Ratio for 1 ug/m3 increase PM2.5: ",
+           round(fit.or, 3), " 95% CI: (",
+           round(lci.or, 3), ", ", round(uci.or, 3), ")"))
+
+fit.pc <- 100*(exp(coeff_pm)-1)
+lci.pc <- 100*(exp(coeff_pm - 1.96*se_pm)-1)
+uci.pc <- 100*(exp(coeff_pm + 1.96*se_pm)-1)
+
+cat(paste0("% change: ", round(fit.pc, 1), "% (",
+           round(lci.pc, 1), ", ", round(uci.pc, 1), ")"))
+
+rm(coeff.mat, mod.log, coeff_pm, fit.or, fit.pc, lci.or, lci.pc, 
+   se_pm, uci.or, uci.pc)
+```
+:::
+
+::: {.cell}
+## 3: Examine Case-Crossover Data Structure
+
+```{r}
+dta <- read_csv(here::here(ProjectFolder, "NYC_dailyData_Subset.csv")) %>% 
+  arrange(SubjectID) %>% 
+  mutate(DayDate = parse_date_time(DayDate, "ymd"),
+         Month = as.character(month(DayDate, label =TRUE)),
+         DayofWeek = as.character(wday(DayDate, label =TRUE)))
+
+Cases <- dta %>% filter(Case == 1) %>% 
+  dplyr::select(DayDate, dailyPM) %>% 
+  distinct()
+
+ggplot(Cases, aes(DayDate, dailyPM)) + 
+  geom_point() + geom_smooth(color = "cyan")
+
+rm(Cases)
+```
+:::
+
+::: {.cell}
+## 4: Define Research Question
+
+```{r}
+# What is the effect of short-term (daily) exposure to PM2.5 on acute cardiovascular events?
+```
+:::
+
+::: {.cell}
+## 5: Case-Crossover Analysis
+
+```{r}
+mod.clogit.lin <- clogit(Case ~ dailyPM + ns(dailyTemp, df=3) + ns(dailyRH, df=4) + 
+                         strata(SubjectID), method = "efron", data = dta)
+
+summary(mod.clogit.lin)
+
+coeff.mat <- summary(mod.clogit.lin)$coef
+coeff_pm <- coeff.mat[1,1]
+se_pm <- coeff.mat[1,3]
+
+fit.or <- exp(coeff_pm)
+lci.or <- exp(coeff_pm - 1.96*se_pm)
+uci.or <- exp(coeff_pm + 1.96*se_pm)
+paste(round(fit.or, 4), "(95% CI: ", round(lci.or, 4), ",", round(uci.or, 4), ")")
+
+fit.or.10 <- exp(10 * coeff_pm)
+lci.or.10 <- exp(10 * (coeff_pm - 1.96*se_pm))
+uci.or.10 <- exp(10 * (coeff_pm + 1.96*se_pm))
+paste(round(fit.or.10, 4), "(95% CI: ", round(lci.or.10, 4), ",", round(uci.or.10, 4), ")")
+
+ptemp <- predict(mod.clogit.lin, type = "terms", se = TRUE) %>% as.data.frame()
+colnames(ptemp) <- c("term.PM", "termTemp.ns.3", "termRH.ns.3", 
+                    "se.PM", "seTemp.ns.3", "seRH.ns.3")
+dta.pred <- bind_cols(dta, ptemp) %>% 
+  mutate(fit.or = exp(term.PM),
+         lci.or = exp(term.PM - 1.96 * se.PM), 
+         uci.or = exp(term.PM + 1.96 * se.PM))
+
+sample_frac(dta.pred, 0.1) %>%
+  ggplot(aes(x=dailyPM)) + 
+  geom_line(aes(y = fit.or), color = "lightsalmon2", size = 1) +
+  geom_line(aes(y = lci.or), color = "grey", linetype = "dashed") + 
+  geom_line(aes(y = uci.or), color = "grey", linetype = "dashed") +
+  geom_rug(col = "gray60") +
+  xlab(expression("Daily PM"[2.5])) +
+  ylab("Odds Ratio of CVD Admission")
+```
+:::
+
+::: {.cell}
+## 6: Non-Linearity in Case-Crossover
+
+```{r}
+mod.clogit.ns.3 <- clogit(Case ~ ns(dailyPM, df = 3) + ns(dailyTemp, df=3) + 
+                          ns(dailyRH, df=4) + strata(SubjectID), 
+                          method = "efron", data = dta)
+
+ptemp <- predict(mod.clogit.ns.3, type = "terms", se = TRUE) %>% as.data.frame()
+colnames(ptemp) <- c("termPM.ns.3", "termTemp.ns.3", "termRH.ns.3", 
+                     "sePM.ns.3", "seTemp.ns.3", "seRH.ns.3")
+dta.pred <- bind_cols(dta, ptemp) %>% 
+  mutate(fit.or = exp(termPM.ns.3),
+         lci.or = exp(termPM.ns.3 - 1.96 * sePM.ns.3), 
+         uci.or = exp(termPM.ns.3 + 1.96 * sePM.ns.3))
+
+sample_frac(dta.pred, 0.1) %>%
+  ggplot(aes(x=dailyPM)) +
+  geom_line(aes(y = fit.or), color = "lightsalmon2", size = 1) +
+  geom_line(aes(y = lci.or), color = "grey", linetype = "dashed") +
+  geom_line(aes(y = uci.or), color = "grey", linetype = "dashed") +
+  geom_rug(col = "gray60") +
+  xlab(expression("Daily PM"[2.5])) +
+  ylab("Odds of CVD admission")
+```
+:::
+
+::: {.cell}
+## 7: Breakout Exercise
+
+```{r}
+# Try: Association between same-day temperature and CVD, using non-linear temp
+```
+:::
+
+<!-- Additional bonus sections and models can be added in similar structure. -->

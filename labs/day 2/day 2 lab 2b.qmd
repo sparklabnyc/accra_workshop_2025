@@ -1,0 +1,210 @@
+---
+title: "Modelling of complex, non-linear relationships in time series data while accounting for delayed effects "
+subtitle: "Day 2 lab 2: Time series"
+author: "Robbie M. Parks"
+date: today
+format: html
+editor: visual
+---
+
+## Pre-Class Material
+
+### 0: Preparation
+
+::: cell
+```{r}
+# 0a Install packages (if needed)
+# install.packages("lubridate")
+
+# 0b Load packages
+library(readr)
+library(dplyr) 
+library(lubridate)
+library(splines)
+library(mgcv)
+library(ggplot2)
+
+# 0c Declare directories
+library(here)
+ProjectFolder <- here("data")
+```
+:::
+
+### 1: Define Research Question
+
+-   Does daily PM2.5 exposure increase daily cardiovascular hospitalizations in NYC?
+-   Examine temporal trends in exposure and outcome before formal modeling.
+
+### 2: Examine NYC Daily Data
+
+::: cell
+```{r}
+# 2a Read in data
+dta <- read_csv(here::here(ProjectFolder, "nyc_time_series.csv"))
+
+# 2b Arrange and inspect
+dta <- dta %>% arrange(dateD)
+head(dta)
+hist(dta$dailyPM)
+hist(dta$dailyCVD)
+dim(dta)
+summary(dta)
+
+# 2c Convert date
+dta <- dta %>% mutate(Date = parse_date_time(dateD, "mdy"))
+
+# 2d Day of the week
+dta <- dta %>% mutate(DayofWeek = as.character(wday(Date, label = TRUE)))
+
+# 2e Final ordering
+dta <- dta %>% arrange(Date)
+head(dta)
+```
+:::
+
+### 3: Plot Time Series of Air Pollution
+
+::: cell
+```{r}
+# 3a Line plot
+ggplot(dta, aes(Date, dailyPM)) + 
+  geom_line(color = "darkorange3")
+```
+:::
+
+::: cell
+```{r}
+# 3b Smoothed plots
+yr_num <- length(unique(year(dta$Date)))
+ggplot(dta, aes(Date, dailyPM)) + 
+  geom_smooth(color = "darkorange2", method = lm, formula = y ~ ns(x, df = 4 * yr_num)) +
+  geom_smooth(color = "green", method = lm, formula = y ~ ns(x, df = 1 * yr_num)) +
+  geom_smooth(color = "cyan")
+```
+:::
+
+### 4: Plot Time Series of Cardiovascular Hospitalizations
+
+::: cell
+```{r}
+# 4a Points
+ggplot(dta, aes(Date, dailyCVD)) + 
+  geom_point(color = "mediumpurple3")
+```
+:::
+
+::: cell
+```{r}
+# 4b Smoothed
+ggplot(dta, aes(Date, dailyCVD)) + 
+  geom_smooth(color = "mediumpurple2", method = lm, formula = y ~ ns(x, df = 4 * yr_num)) +
+  geom_smooth(color = "green", method = lm, formula = y ~ ns(x, df = 1 * yr_num))
+```
+:::
+
+### 5: Plot Day of the Week Patterns
+
+::: cell
+```{r}
+dta$DayofWeek <- factor(dta$DayofWeek, level = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
+
+dta.dow.cvd <- dta %>% group_by(DayofWeek) %>% summarize(meanCVD = mean(dailyCVD))
+dta.dow.pm <- dta %>% group_by(DayofWeek) %>% summarize(meanPM = mean(dailyPM))
+
+ggplot(dta.dow.cvd, aes(DayofWeek, meanCVD)) + geom_bar(stat = "identity")
+ggplot(dta.dow.pm, aes(DayofWeek, meanPM)) + geom_bar(stat = "identity")
+
+dta.dow <- bind_rows(
+  dta.dow.cvd %>% mutate(VarName = "CVD Hospitalizations") %>% rename(Var = meanCVD),
+  dta.dow.pm %>% mutate(VarName = "PM2.5") %>% rename(Var = meanPM)
+)
+
+ggplot(dta.dow, aes(DayofWeek, Var)) +
+  geom_bar(stat = "identity") +
+  facet_grid(VarName ~ ., scales = "free")
+```
+:::
+
+## Live Session Material
+
+### 6: Define Research Question
+
+-   Estimate association between daily PM2.5 and CVD hospitalizations.
+-   Control for temp, RH, seasonal trends, and DOW.
+
+### 7: Time Series Analysis - Lag 0
+
+::: cell
+```{r}
+mod.ts.p <- glm(dailyCVD ~ dailyPM + ns(dailyTemp, df = 4) +
+                  ns(dailyRH, df = 3) + DayofWeek +
+                  ns(Date, df = 4 * yr_num),
+                family = "poisson", data = dta)
+
+summary(mod.ts.p)
+
+mean(dta$dailyCVD)
+var(dta$dailyCVD)
+
+mod.ts.qp <- glm(dailyCVD ~ dailyPM + ns(dailyTemp, df = 4) +
+                   ns(dailyRH, df = 3) + DayofWeek +
+                   ns(Date, df = 4 * yr_num),
+                 family = "quasipoisson", data = dta)
+
+summary(mod.ts.qp)
+summary(mod.ts.qp)$dispersion
+
+# RR and CI
+coeff.mat <- summary(mod.ts.qp)$coef
+coeff_pm <- coeff.mat[2, 1]
+se_pm <- coeff.mat[2, 2]
+
+rr <- exp(coeff_pm)
+lci <- exp(coeff_pm - 1.96 * se_pm)
+uci <- exp(coeff_pm + 1.96 * se_pm)
+
+RR_pm <- paste(round(rr, 4), " (95%CI: ", round(lci, 4), ", ", round(uci, 4), ")", sep = "")
+RR_pm
+
+# Percent change for 1-unit and 10-unit
+PC_pm.1 <- paste0(round(100 * (exp(coeff_pm) - 1), 2), "% (95%CI: ",
+                  round(100 * (exp(coeff_pm - 1.96 * se_pm) - 1), 2), "%, ",
+                  round(100 * (exp(coeff_pm + 1.96 * se_pm) - 1), 2), "%)")
+
+PC_pm.10 <- paste0(round(100 * (exp(10 * coeff_pm) - 1), 2), "% (95%CI: ",
+                   round(100 * (exp(10 * (coeff_pm - 1.96 * se_pm)) - 1), 2), "%, ",
+                   round(100 * (exp(10 * (coeff_pm + 1.96 * se_pm)) - 1), 2), "%)")
+
+PC_pm.1
+PC_pm.10
+```
+:::
+
+### 8: Time Series Analysis - 3-Day Average
+
+::: cell
+```{r}
+dta <- dta %>% arrange(Date) %>%
+  mutate(pm_ave3d = (dailyPM + lag(dailyPM) + lag(dailyPM, 2)) / 3,
+         temp_ave3d = (dailyTemp + lag(dailyTemp) + lag(dailyTemp, 2)) / 3,
+         rh_ave3d = (dailyRH + lag(dailyRH) + lag(dailyRH, 2)) / 3)
+
+mod.ts.3day.qp <- glm(dailyCVD ~ pm_ave3d +
+                        ns(temp_ave3d, df = 4) +
+                        ns(rh_ave3d, df = 3) +
+                        DayofWeek + ns(Date, df = 4 * yr_num),
+                      family = "quasipoisson", data = dta)
+
+summary(mod.ts.3day.qp)
+
+coef.pm <- summary(mod.ts.3day.qp)$coef[2, 1]
+se.pm <- summary(mod.ts.3day.qp)$coef[2, 2]
+
+rr <- exp(coef.pm)
+lci <- exp(coef.pm - 1.96 * se.pm)
+uci <- exp(coef.pm + 1.96 * se.pm)
+
+RR_pm <- paste0(round(rr, 4), " (95% CI: ", round(lci, 4), ", ", round(uci, 4), ")")
+RR_pm
+```
+:::
