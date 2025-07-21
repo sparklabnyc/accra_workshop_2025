@@ -30,7 +30,7 @@ ProjectFolder <- here("data")
 
 Research Question: Does PM2.5 increase the likelihood that a county's average BMI is greater than 28 kg/m2?
 
-::: {.cell}
+::: cell
 ## 2: Logistic Model
 
 ```{r}
@@ -68,7 +68,7 @@ rm(coeff.mat, mod.log, coeff_pm, fit.or, fit.pc, lci.or, lci.pc,
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 3: Examine Case-Crossover Data Structure
 
 ```{r}
@@ -89,7 +89,7 @@ rm(Cases)
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 4: Define Research Question
 
 ```{r}
@@ -97,7 +97,7 @@ rm(Cases)
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 5: Case-Crossover Analysis
 
 ```{r}
@@ -139,7 +139,7 @@ sample_frac(dta.pred, 0.1) %>%
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 6: Non-Linearity in Case-Crossover
 
 ```{r}
@@ -166,7 +166,7 @@ sample_frac(dta.pred, 0.1) %>%
 ```
 :::
 
-::: {.cell}
+::: cell
 ## 7: Breakout Exercise
 
 ```{r}
