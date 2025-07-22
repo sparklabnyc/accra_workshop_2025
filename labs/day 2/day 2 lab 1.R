@@ -50,7 +50,7 @@ library(splines)
 
 #0c Declare folder paths
 
-ProjectFolder <- here("data")
+ProjectFolder <- here::here("data")
 
 # ProjectFolder <- paste0("/Users/marianthi_anna/Dropbox/AAMEHS/Spring2021/", 
 #                          "A2_Labs/Lab03_Nonlinearity/")
