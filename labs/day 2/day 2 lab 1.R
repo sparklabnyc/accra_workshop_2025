@@ -522,7 +522,7 @@ models_aic$ModelName[which(models_aic$AIC==min(models_aic$AIC))]
 # 6e Create natural spline with gam()
 # We can also use the gam() command to create the same model
 
-mod.ns.gam.3 <- gam(AveBMI ~ ns(AvePM, df = 3) + FemaleUnemp + MaleUnemp + 
+mod.ns.gam.3 <- gam(AveBMI ~ ns(AvePM, df = 2) + FemaleUnemp + MaleUnemp + 
                       LTHS + MedHInc + MedHVal + PerBlack + PerLatinx + 
                       PerAsianAm + ClimateRegion, data = df)
 

@@ -2,7 +2,7 @@
 title: "Introduction to Bayesian Methods"
 subtitle: "Day 3 lab 1"
 author: "Robbie M. Parks, Theo Rashid"
-date: "August 21 2024"
+date: "July 23 2025"
 format: html
 ---
 

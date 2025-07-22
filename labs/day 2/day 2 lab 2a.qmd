@@ -143,13 +143,12 @@ sample_frac(dta.pred, 0.1) %>%
 ## 6: Non-Linearity in Case-Crossover
 
 ```{r}
-mod.clogit.ns.3 <- clogit(Case ~ ns(dailyPM, df = 3) + ns(dailyTemp, df=3) + 
-                          ns(dailyRH, df=4) + strata(SubjectID), 
+mod.clogit.ns.3 <- clogit(Case ~ ns(dailyPM, df = 3) + strata(SubjectID), 
                           method = "efron", data = dta)
 
 ptemp <- predict(mod.clogit.ns.3, type = "terms", se = TRUE) %>% as.data.frame()
-colnames(ptemp) <- c("termPM.ns.3", "termTemp.ns.3", "termRH.ns.3", 
-                     "sePM.ns.3", "seTemp.ns.3", "seRH.ns.3")
+colnames(ptemp) <- c("termPM.ns.3",
+                     "sePM.ns.3")
 dta.pred <- bind_cols(dta, ptemp) %>% 
   mutate(fit.or = exp(termPM.ns.3),
          lci.or = exp(termPM.ns.3 - 1.96 * sePM.ns.3), 
