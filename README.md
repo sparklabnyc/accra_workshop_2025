@@ -1,4 +1,4 @@
-# Introduction to methods in environmental epidemiology
+# Introduction to advanced methods in environmental epidemiology
 
 Robbie M. Parks and Cascade Tuholske. With thanks to Marianthi-Anna Kioumourtzoglou and Garyfallos Konstantinoudis for previous work together informing this material.
 
